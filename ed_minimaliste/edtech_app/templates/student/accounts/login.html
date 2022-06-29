@@ -13,7 +13,7 @@
       <div class="rounded d-flex justify-content-center">
           <div class="col-md-4 col-sm-12 shadow-lg p-5 bg-light">
               <div class="text-center">
-                  <h3 class="text-success">Sign In</h3>
+                 <h3 class="text-success">Sign-In Etudiant</h3>
               </div>
               <form action="" method="post">
                 {% csrf_token %}
@@ -35,7 +35,7 @@
                           <a class="text-decoration-none" href="{% url 'signup' %}"><span class="text-success">Sign Up</span></a>
                       </p>
                       <p class="text-center mt-5">Forgot Password?
-                        <a class="text-decoration-none" href="{% url 'reset_password' %}"><span class="text-success">reset password</span></a>
+                        <a class="text-decoration-none" href="{% url 'reset_password' %}"><span class="text-success">Reset Password</span></a>
                     </p>
                   </div>
               </form>

@@ -8,20 +8,31 @@ from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
 from django.contrib.auth.models import User
 from .models import *
 from django.forms.formsets import formset_factory
+
 class Studentloginform(forms.Form):
     email = forms.CharField(widget=forms.TextInput(attrs={
-                "placeholder": "your email..",
+                "placeholder": "Addresse e-mail..",
                 "class": "form-control",
             }
         ),)
     password = forms.CharField(widget=forms.PasswordInput(attrs={
-                "placeholder": "your password...",
+                "placeholder": "Mot De Pass...",
                 "class": "form-control",
             }
         ),)
 
-class SignUpForm(UserCreationForm):
+class TeacherLoginForm(forms.Form):
+    email = forms.CharField(widget=forms.TextInput(attrs={
+                "placeholder": "Addresse e-mail...",
+                "class": "form-control",
+            }
+        ),)
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+                "placeholder": "Mot De Pass...",
+                "class": "form-control",}
+        ),)
 
+class SignUpForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={
                 "placeholder": "ecrire votre Nom..",
                 "class": "form-control",

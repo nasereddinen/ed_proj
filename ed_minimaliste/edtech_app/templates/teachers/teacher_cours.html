@@ -6,7 +6,7 @@
 {% block stylesheets %}
 <style>
 
-  .has-search .form-control {
+.has-search .form-control {
     padding-left: 2.375rem;
 }
 
@@ -29,33 +29,34 @@
 {% include "includes/navbar_teacher.html" %}
 <div class="container-fluid">
     <!-- title -->
-    <div class="row mx-2  mb-2">
-  <div class="col-md-6 col-xl-3 ">
-    <div class="card white_card p-0 border-0 shadow-sm">
+    <div class="row   mb-2">
+  <div class="col-md-6 col-xl-3 " style="margin-left: 20px;">
+    <div class="card white_card p-0 border-0 shadow-sm" style="width: 290px;">
         <div class="card-body m-0">
             <h6 class="text-dark">Cours en progression</h6>
             <h6 class="text-right text-dark"><i class='bx bxs-book icon float-left'></i><span>1041</span></h6>  
         </div>
     </div>
 </div>
-<div class="col-md-6 col-xl-3 m-0 ">
-  <div class="card white_card p-0 border-0 shadow-sm">
-      <div class="card-body m-0">
+
+<div class="col-md-6 col-xl-3 ">
+  <div class="card white_card p-0 border-0 shadow-sm" style="width: 290px;">
+      <div class="card-body m-0" >
           <h6 class="text-dark">Cours Publiés</h6>
           <h6 class="text-right text-dark"><i class='bx bxs-video icon float-left'></i></i><span>11</span></h6>    
       </div>
   </div>
 </div>
-<div class="col-md-3 col-xl-3 ms-2">
+
+<div class="col-md-3 col-xl-3 ms-0">
   <div class="form-group has-search">
     <span class="bx bxs-search form-control-feedback"></span>
     <input type="text" class="form-control" placeholder="Search">
   </div>
 </div> 
-<div class="col-md-3 col-xl-2 ">
-  <div class="form-group has-search px-5 mx-5 justify-content-end">
-   <button class=" btn btn-success px-1 mx-4"> <i class='bx bx-plus-medical icon mx-2 my-0'></i>Nouveau cour </button>
-  </div>
+<div class="col-md-3 col-xl-2 mt-2" >
+   <a href="{% url 'teachers_videos' %}" class=" btn btn-success " style="margin-left: 25px;"> <i class='bx bx-plus-medical icon mx-2 my-0'></i>Nouveau Cour </a>
+
 </div> 
 </div>
     <!-- all cards -->

@@ -160,8 +160,8 @@ video{
     <div class="timeline_cours">
       <span class="first"><i class="fa-solid fa-house-chimney fa-1x circle-icon" style="color: rgb(255, 255, 255);"></i></span>
       {% for vid in list_vid %}
-      <a class="item" href="{% url 'student_vid' vid.id%}"  title="This is some text I want to display."></a>
-      <a class="item" href="{% url 'student_vid' vid.id%}"></a>
+      <a class="item" href="{% url 'student_vid' vid.id %}"  title="This is some text I want to display."></a>
+     
     
       {% endfor %}
       <span class="end"><i class="fa-solid fa-trophy fa-1x circle-icon" style="color: rgb(255, 255, 255);"></i></span>
@@ -172,9 +172,11 @@ video{
       <video class="wp-video-shortcode" id="video-457235-1_html5" width="520" height="601" preload="metadata"  controls>
       <source type="video/mp4" src="{{videos.video.url}}">
       </video>
+    
       
       <p style="margin:0;display:inline;float:right" >{{videos.uploaded}}</p>
       <p>Discription</p>
+      <p>{{ videos.titre }}</p>
 
     </div>
   <div class="box edit" id="content">
@@ -186,9 +188,12 @@ video{
       </ul>
       <div class="tabContent">
         <div id="tab1">
+          <form method="post" id="note-form" action="{% url 'note_student' %}">
+            {% csrf_token %}
           {{form.media}}
           {{form}}
-          <button class="btn_note">Enregister</button>
+          <button class="btn-note" type="submit" value="{{videos.id}}">Enregister</button>
+        </form>
         </div>
         <div id="tab2">
           <span>les hints <b>interesting</b>.</span>
@@ -207,7 +212,39 @@ video{
 
 {% block javascripts %}
 <script>
-  $("#content").on("click", ".tabContainer .tabs a", function(e) {
+ 
+
+$(document).ready(function(){
+  var editor = CKEDITOR.replace( 'text_note' );
+  
+$('#note-form').submit(function(e){
+  e.preventDefault();
+  const token=$('input[name=csrfmiddlewaretoken]').val();
+  const url=$(this).attr('action') 
+  var texty=CKEDITOR.instances['id_text_note'].getData();
+  console.log(texty)
+  const id_chap=$('.btn-note').val()
+$.ajax({
+	method:'POST',
+	url:url,
+  headers:{'X-CSRFToken': token},
+	data:{
+	'notechapitre':id_chap,
+  'note':texty
+	
+}, 
+
+success: function() {
+
+alert('Data Successfully Posted');
+	
+},
+
+});
+
+});
+});
+$("#content").on("click", ".tabContainer .tabs a", function(e) {
   e.preventDefault(),
   $(this)
     .parents(".tabContainer")
@@ -222,6 +259,5 @@ video{
     .removeClass("active"),
     $(this).toggleClass("active"), $("#" + $(this).attr("src")).show();
 });
-
 </script>
 {% endblock javascripts %}

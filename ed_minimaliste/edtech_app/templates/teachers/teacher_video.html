@@ -25,15 +25,15 @@
     {% csrf_token %}
     <!-- One "tab" for each step in the form: -->
     <div class="tab">
-      <p>titre: {{Cour_Form.title}}</p>
-      <p> reqs:{{Cour_Form.reqs}}</p>
+      <p>Titre: {{Cour_Form.title}}</p>
+      <p> Sous Titre:{{Cour_Form.reqs}}</p>
     </div>
     <div class="tab">
-      <p>image:{{Cour_Form.image}}</p>
-      <p>alt:{{Cour_Form.image_alt_name}}</p>
+      <p>Image:{{Cour_Form.image}}</p>
+      <p>Alt:{{Cour_Form.image_alt_name}}</p>
     </div>
     <div class="tab">
-      <p>prix:{{Cour_Form.categorie}}</p>
+      <p>Categories:{{Cour_Form.categorie}}</p>
         <p>prix:{{Cour_Form.price}}</p>
         <p>langue:{{Cour_Form.langue}}</p>
     </div>

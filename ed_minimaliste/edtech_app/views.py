@@ -1,9 +1,5 @@
-
-import email
-from email import message
 import json
 from multiprocessing import context
-from urllib import request
 from django.contrib.auth import login, authenticate,logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.sites.shortcuts import get_current_site
@@ -19,18 +15,19 @@ from django.template.loader import render_to_string
 from django.contrib import messages
 from .forms import *
 from django.urls import reverse
-from django.core.mail import EmailMessage
 from django.core.mail import BadHeaderError, send_mail
 from django.conf import settings
 from .models import *
+from django.contrib.auth.models import Group
 # Create your views here.
 def home_student(request):
     categories = Category.objects.all()
     subcategories = subcat.objects.all()
-    context = {'categories':categories,
-               'subcat': subcategories   
+    context = {
+        'categories':categories,
+        'subcat': subcategories, 
     }
-    return render(request,'./student/home/landing_page.html',context)
+    return render(request,'./Landing_Pages/EdTech_landing.html',context)
 def login_view(request):
     if request.method == "GET":
         form = Studentloginform(request.GET or None)
@@ -53,29 +50,32 @@ def Logout_view(request):
     return HttpResponseRedirect(reverse("home_student"))
 
 def signup_view(request):
+    if request.method == 'GET':
+        form = SignUpForm()
+        resume_form = resumeForm()
     if request.method == 'POST':
         form = SignUpForm(request.POST)
-        
-        if form.is_valid():
+        resume_form = resumeForm(request.POST)
+        if form.is_valid() and resume_form.is_valid():
             user = form.save(commit=False)
             user.is_active = False
             user.save()
+            resume_form.save()
             current_site = get_current_site(request)
             message = render_to_string('student/accounts/acc_active_email.html', {
                 'user':user, 'domain':current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
             })
-            
             email_from = settings.EMAIL_HOST_USER
             mail_subject = 'Activer votre Minimaliste compte.'
             to_email = form.cleaned_data.get('email')
             send_mail(mail_subject,message,email_from,[to_email])
             return HttpResponse('Please confirm your email address to complete the registration.')
             # return render(request, 'acc_active_sent.html')
-    else:
-        form = SignUpForm()
-    return render(request, './student/accounts/register.html', {'form': form})
+    
+        
+    return render(request, './student/accounts/register.html', {'form': form,'resumeForm':resume_form})
 
 def activate(request, uidb64, token):
     try:
@@ -90,29 +90,49 @@ def activate(request, uidb64, token):
         return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
     else:
         return HttpResponse('Activation link is invalid!')
-#signup_pour_les_enseignant
+######################signup_pour_les_enseignant#################################
 def teacher_signup(request):
+    form = SignUpForm()
+    form_teacher = resumeForm()
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        form_teacher = resumeForm(request.POST)
+        form = SignUpForm(request.POST or None)
+        form_teacher = resumeForm(request.POST or None)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
-            resume=form_teacher.save()
-            resume.user=user
+            user_teacher = form.save(commit=False)
+            user_teacher.is_active = False
+            user_teacher.save()
+            resume=form_teacher.save(commit=False)
+            resume.user=user_teacher
             resume.save()
-
             email_from = settings.EMAIL_HOST_USER
-            mail_subject = 'Activer votre Minimaliste compte.'
-            message='votre demande a verifier'
+            mail_subject = 'Activer votre Enseignant Minimaliste compte.'
+            message=' Votre demande a vérifie vous avez réussie la date rdv'
             to_email = form.cleaned_data.get('email')
             send_mail(mail_subject,message,email_from,[to_email])
-            
-            
-    else:
-        form = SignUpForm()
-    return render(request, './student/accounts/register.html', {'form': form})
+            teacher_group = Group.objects.get_or_create(name='Teacher')
+            teacher_group[0].user_set.add(user_teacher)
+            return HttpResponseRedirect(reverse("teacher_login"))
+
+    return render(request, './teachers/accounts/register.html',{'form': form,'resumeForm':resume})
+############-----end register enseignant-------###########################
+############-----Login enseignant-------###########################
+def Login_Teacher(request):
+    if request.method == "GET":
+        form = TeacherLoginForm(request.GET or None)
+    elif request.method == "POST":
+        form = TeacherLoginForm(request.POST or None)
+        if form.is_valid():
+            username = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request,username=username, password=password)
+        if user is not None:
+            login(request,user)
+            return HttpResponseRedirect(reverse("student_dash"))
+    context= {'form':form}
+    return render(request,"teachers/accounts/login.html",context) 
+
+
+############-----end Login enseignant-------###########################
 #student_dash_view
 def student_list_vids(request):
     list_cours = cours.objects.all()
@@ -152,17 +172,39 @@ def student_learn(request,pk):
     if not ordred:
         return HttpResponseRedirect(reverse("student_dash"))
     progVideo = VideoCours.objects.filter(cour__id=pk).order_by('id')
-    video_id=request.GET.get('video')
-    if video_id:
-        video = VideoCours.objects.get(id=video_id,cour__id=pk)
-    else:
-        video=VideoCours.objects.get(cour__id=pk)
-    context = {'videos':video,'list_vid':progVideo}
+    if request.method == 'GET':
+        Noteform=Note_Form(request.GET)
+    video=VideoCours.objects.filter(cour__id=pk).first()
+    context = {'videos':video,'list_vid':progVideo,'form':Noteform}
     return render(request,'./student/home/student_videos.html',context)
 
-def student_vid(request):
-    return render(request,'./student/home/student_videos.html')
+def student_vid(request,pk):
+    Video = VideoCours.objects.get(id=pk)
+    ordred = Order.objects.filter(user__pk=request.user.id,course__pk=Video.cour.id)
+    if not ordred:
+        return HttpResponseRedirect(reverse("student_dash"))
+    if request.method == 'GET':
+        Noteform=Note_Form(request.GET)
 
+    progVideo=VideoCours.objects.filter(cour__id=Video.cour.id)
+    context = {'videos':Video,'list_vid':progVideo,'form':Noteform}
+    return render(request,'./student/home/student_videos.html',context)
+
+def student_notes(request):
+    data=dict()
+    form = Note_Form(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        print(request.POST)
+        t=request.POST['notechapitre']
+       
+        text=request.POST["note"]
+        
+        vid=VideoCours.objects.get(id=t)
+        notes(chapitre = vid,student = request.user, text_note=text).save()
+    else:
+        form = Note_Form()
+    data={'success':1}
+    return JsonResponse(data)
 def like_video(request):
     data=dict()
     user = request.user

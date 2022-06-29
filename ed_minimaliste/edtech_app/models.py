@@ -2,6 +2,7 @@ from distutils.command.upload import upload
 from email.mime import image
 from pyexpat import model
 from tkinter import CASCADE
+from turtle import title
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -29,8 +30,7 @@ class Profile(models.Model):
         return self.user.username
         
 class Category(models.Model):
-    title = models.CharField(max_length=100) 
-    logo = models.ImageField(upload_to='media/catlogo', blank=True, null=True, help_text='Optional')
+    title = models.CharField(max_length=100)
     top_ten_cat = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     disc = models.BooleanField(default=False, verbose_name='Add In Disclaimer')
